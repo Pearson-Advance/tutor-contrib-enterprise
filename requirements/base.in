@@ -1,0 +1,4 @@
+# Main requirements of this plugin.
+-c constraints.txt
+
+tutor

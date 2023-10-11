@@ -1,0 +1,15 @@
+# Enable Enterprise at platform level.
+# We need to duplicate these settings as the common patch is applied before Tutor deactivates Enterprise:
+# https://github.com/overhangio/tutor/blob/v15.3.7/tutor/templates/apps/openedx/settings/lms/development.py#L5
+FEATURES['ENABLE_ENTERPRISE_INTEGRATION'] = True
+SYSTEM_WIDE_ROLE_CLASSES.append(
+    'enterprise.SystemWideEnterpriseUserRoleAssignment',
+)
+# Setting from the edx-enterprise project.
+ENTERPRISE_BACKEND_SERVICE_EDX_OAUTH2_KEY = "{{ ENTERPRISE_OAUTH2_KEY }}"
+ENTERPRISE_BACKEND_SERVICE_EDX_OAUTH2_SECRET = "{{ ENTERPRISE_OAUTH2_SECRET_KEY }}"
+ENTERPRISE_BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "{{ JWT_COMMON_ISSUER }}"
+# This configuration should be defined by tutor-discovery but it is not, so we define it.
+COURSE_CATALOG_API_URL = "{{ ENTERPRISE_COURSE_CATALOG_API_URL }}"
+# We leave this parameter blank, since we have not enabled this feature for Enterprise.
+ENTERPRISE_LEARNER_PORTAL_BASE_URL = ""

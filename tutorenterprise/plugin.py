@@ -14,33 +14,27 @@ from .__about__ import __version__
 # CONFIGURATION
 ########################################
 
+config = {
+    "defaults": {
+        "VERSION": __version__,
+        "OAUTH2_KEY": "enterprise-backend-service",
+        "WORKER_USER_NAME": "enterprise_worker",
+        "WORKER_USER_EMAIL": "enterprise_worker@example.com ",
+        "COURSE_CATALOG_API_URL": "{% if ENABLE_HTTPS %}https{% else %}http{% endif %}://{{ DISCOVERY_HOST }}/api/v1/",
+    },
+    "unique": {
+        "OAUTH2_SECRET_KEY": "{{ 64|random_string }}",
+    },
+}
+
 hooks.Filters.CONFIG_DEFAULTS.add_items(
-    [
-        # Add your new settings that have default values here.
-        # Each new setting is a pair: (setting_name, default_value).
-        # Prefix your setting names with 'ENTERPRISE_'.
-        ("ENTERPRISE_VERSION", __version__),
-    ]
+    [(f"ENTERPRISE_{key}", value) for key, value in config.get("defaults", {}).items()],
 )
-
 hooks.Filters.CONFIG_UNIQUE.add_items(
-    [
-        # Add settings that don't have a reasonable default for all users here.
-        # For instance: passwords, secret keys, etc.
-        # Each new setting is a pair: (setting_name, unique_generated_value).
-        # Prefix your setting names with 'ENTERPRISE_'.
-        # For example:
-        ### ("ENTERPRISE_SECRET_KEY", "{{ 24|random_string }}"),
-    ]
+    [(f"ENTERPRISE_{key}", value) for key, value in config.get("unique", {}).items()],
 )
-
 hooks.Filters.CONFIG_OVERRIDES.add_items(
-    [
-        # Danger zone!
-        # Add values to override settings from Tutor core or other plugins here.
-        # Each override is a pair: (setting_name, new_value). For example:
-        ### ("PLATFORM_NAME", "My platform"),
-    ]
+    list(config.get("overrides", {}).items()),
 )
 
 
@@ -57,6 +51,7 @@ MY_INIT_TASKS: list[tuple[str, tuple[str, ...]]] = [
     # tutorenterprise/templates/enterprise/jobs/init/lms.sh
     # And then add the line:
     ### ("lms", ("enterprise", "jobs", "init", "lms.sh")),
+    ("lms", ("enterprise", "jobs", "lms", "init")),
 ]
 
 

@@ -1,0 +1,22 @@
+# Initialization tasks for Enterprise.
+
+## Create Enterprise user.
+## This user will be used to create oAuth applications and authenticate requests againts it.
+./manage.py lms manage_user {{ ENTERPRISE_WORKER_USER_NAME }} {{ ENTERPRISE_WORKER_USER_EMAIL }} --staff --unusable-password
+
+## Create DOT application.
+## This allows Enterprise to make authenticated requests to the different Open edX services.
+./manage.py lms create_dot_application \
+    --grant-type client-credentials \
+    --client-id {{ ENTERPRISE_OAUTH2_KEY }} \
+    --client-secret {{ ENTERPRISE_OAUTH2_SECRET_KEY }} \
+    --update \
+    enterprise-backend-service \
+    {{ ENTERPRISE_WORKER_USER_NAME }}
+
+## Create Catalog integration record.
+## This is required to make requests to Discovery service.
+./manage.py lms create_catalog_integrations \
+    --internal_api_url {{ ENTERPRISE_COURSE_CATALOG_API_URL }} \
+    --service_username {{ ENTERPRISE_WORKER_USER_NAME }} \
+    --enabled

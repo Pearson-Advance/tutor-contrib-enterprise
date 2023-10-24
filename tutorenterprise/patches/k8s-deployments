@@ -1,0 +1,34 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-catalog
+  labels:
+    app.kubernetes.io/name: enterprise-catalog
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: enterprise-catalog
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: enterprise-catalog
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: enterprise-catalog
+          image: {{ ENTERPRISE_CATALOG_DOCKER_IMAGE }}
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - mountPath: /openedx/enterprise-catalog/enterprise_catalog/settings/tutor/production.py
+              name: settings
+              subPath: production.py
+          securityContext:
+            allowPrivilegeEscalation: false
+      volumes:
+        - name: settings
+          configMap:
+            name: enterprise-catalog-settings

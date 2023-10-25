@@ -1,0 +1,3 @@
+## Update course content metadata.
+## https://github.com/openedx/enterprise-catalog/blob/master/docs/getting_started.rst#running-management-commands-locally
+./manage.py update_content_metadata

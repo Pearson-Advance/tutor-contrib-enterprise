@@ -2,7 +2,7 @@
 
 ## Create Enterprise user.
 ## This user will be used to create oAuth applications and authenticate requests againts it.
-./manage.py lms manage_user {{ ENTERPRISE_WORKER_USER_NAME }} {{ ENTERPRISE_WORKER_USER_EMAIL }} --staff --unusable-password
+./manage.py lms manage_user {{ ENTERPRISE_WORKER_USER_NAME }} {{ ENTERPRISE_WORKER_USER_EMAIL }} --staff --superuser --unusable-password
 
 ## Create DOT application.
 ## This allows Enterprise to make authenticated requests to the different Open edX services.
@@ -18,5 +18,35 @@
 ## This is required to make requests to Discovery service.
 ./manage.py lms create_catalog_integrations \
     --internal_api_url {{ ENTERPRISE_COURSE_CATALOG_API_URL }} \
-    --service_username {{ ENTERPRISE_WORKER_USER_NAME }} \
+    --service_username {{ ENTERPRISE_DISCOVERY_USER }} \
     --enabled
+
+## Fix site configuration as it needs an slash at the end of the URL.
+## https://github.com/openedx/edx-enterprise/blob/3.57.1/enterprise/utils.py#L1558
+site-configuration set -d {{ LMS_HOST }} COURSE_CATALOG_API_URL {% if ENABLE_HTTPS %}https{% else %}http{% endif %}://{{ DISCOVERY_HOST }}/api/v1/
+
+## Enterprise Catalogue service tasks:
+## Create Enterprise Catalogue user.
+## This user will be used to create the SSO and oAuth backend applications for the Enterprise Catalogue service.
+./manage.py lms manage_user {{ ENTERPRISE_CATALOG_WORKER_USER_NAME }} {{ ENTERPRISE_CATALOG_WORKER_USER_EMAIL }} --staff --superuser --unusable-password
+
+## Create the DOT application for the Enterprise Catalogue service SSO.
+./manage.py lms create_dot_application \
+    --grant-type authorization-code \
+    --redirect-uris "{% if ENABLE_HTTPS %}https{% else %}http{% endif %}://{{ ENTERPRISE_CATALOG_HOST }}/complete/edx-oauth2/" \
+    --client-id {{ ENTERPRISE_CATALOG_OAUTH2_KEY_SSO }} \
+    --client-secret {{ ENTERPRISE_CATALOG_OAUTH2_SECRET_KEY_SSO }} \
+    --scopes user_id \
+    --skip-authorization \
+    --update \
+    enterprise-catalog-sso \
+    {{ ENTERPRISE_CATALOG_WORKER_USER_NAME }}
+
+## Create the DOT application for backend-to-backend authenticated requests.
+./manage.py lms create_dot_application \
+    --grant-type client-credentials \
+    --client-id {{ ENTERPRISE_CATALOG_OAUTH2_KEY }} \
+    --client-secret {{ ENTERPRISE_CATALOG_OAUTH2_SECRET_KEY }} \
+    --update \
+    enterprise-catalog-backend-service \
+    {{ ENTERPRISE_CATALOG_WORKER_USER_NAME }}

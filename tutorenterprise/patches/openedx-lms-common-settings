@@ -3,7 +3,7 @@ FEATURES['ENABLE_ENTERPRISE_INTEGRATION'] = True
 SYSTEM_WIDE_ROLE_CLASSES.append(
     'enterprise.SystemWideEnterpriseUserRoleAssignment',
 )
-# Setting from the edx-enterprise project.
+# Settings from the edx-enterprise project.
 ENTERPRISE_BACKEND_SERVICE_EDX_OAUTH2_KEY = "{{ ENTERPRISE_OAUTH2_KEY }}"
 ENTERPRISE_BACKEND_SERVICE_EDX_OAUTH2_SECRET = "{{ ENTERPRISE_OAUTH2_SECRET_KEY }}"
 ENTERPRISE_BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "{{ JWT_COMMON_ISSUER }}"
@@ -11,3 +11,7 @@ ENTERPRISE_BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "{{ JWT_COMMON_ISSUER }}"
 COURSE_CATALOG_API_URL = "{{ ENTERPRISE_COURSE_CATALOG_API_URL }}"
 # We leave this parameter blank, since we have not enabled this feature for Enterprise.
 ENTERPRISE_LEARNER_PORTAL_BASE_URL = ""
+# Define the Enterprise Catalogue URL.
+ENTERPRISE_CATALOG_INTERNAL_ROOT_URL = "{% if ENABLE_HTTPS %}https{% else %}http{% endif %}://{{ ENTERPRISE_CATALOG_HOST }}"
+# Define the Enterprise user to make authenticated requests.
+ENTERPRISE_SERVICE_WORKER_USERNAME = "{{ ENTERPRISE_WORKER_USER_NAME }}"

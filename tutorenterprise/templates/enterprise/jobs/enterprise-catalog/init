@@ -1,0 +1,39 @@
+# Initialization tasks for the Enterprise Catalogue service.
+
+# Run migrations.
+make migrate
+
+## Create Enterprise Catalogue users.
+## It's necessary to create these users to allow requests from other services to the Enterprise Catalogue API.
+export ENTERPRISE_CATALOG_WORKER_USER_NAME={{ ENTERPRISE_CATALOG_WORKER_USER_NAME }}
+export ENTERPRISE_CATALOG_WORKER_USER_EMAIL={{ ENTERPRISE_CATALOG_WORKER_USER_EMAIL }}
+./manage.py shell -c "
+import os
+from django.contrib.auth import get_user_model
+user, created = get_user_model().objects.get_or_create(username=os.environ['ENTERPRISE_CATALOG_WORKER_USER_NAME'], email=os.environ['ENTERPRISE_CATALOG_WORKER_USER_EMAIL'])
+user.set_unusable_password()
+user.is_staff = True
+user.is_superuser = True
+user.save()"
+
+export ENTERPRISE_WORKER_USER_NAME={{ ENTERPRISE_WORKER_USER_NAME }}
+export ENTERPRISE_WORKER_USER_EMAIL={{ ENTERPRISE_WORKER_USER_EMAIL }}
+./manage.py shell -c "
+import os
+from django.contrib.auth import get_user_model
+user, created = get_user_model().objects.get_or_create(username=os.environ['ENTERPRISE_WORKER_USER_NAME'], email=os.environ['ENTERPRISE_WORKER_USER_EMAIL'])
+user.set_unusable_password()
+user.is_staff = True
+user.is_superuser = True
+user.save()"
+
+## Handle requests from ecommerce.
+export ENTERPRISE_ECOMMERCE_OAUTH_USER={{ ENTERPRISE_ECOMMERCE_OAUTH_USER }}
+./manage.py shell -c "
+import os
+from django.contrib.auth import get_user_model
+user, created = get_user_model().objects.get_or_create(username=os.environ['ENTERPRISE_ECOMMERCE_OAUTH_USER'])
+user.set_unusable_password()
+user.is_staff = True
+user.is_superuser = True
+user.save()"

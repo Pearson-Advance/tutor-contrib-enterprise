@@ -1,0 +1,5 @@
+## Enterprise Catalogue service tasks:
+## Create Enterprise Catalogue users.
+## It's necessary to create these users to allow requests from other services using these users.
+./manage.py manage_user {{ ENTERPRISE_CATALOG_WORKER_USER_NAME }} {{ ENTERPRISE_CATALOG_WORKER_USER_EMAIL }} --staff --superuser --unusable-password
+./manage.py manage_user {{ ENTERPRISE_WORKER_USER_NAME }} {{ ENTERPRISE_WORKER_USER_EMAIL }} --staff --superuser --unusable-password

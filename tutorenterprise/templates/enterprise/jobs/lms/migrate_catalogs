@@ -1,0 +1,2 @@
+## Migrate existing catalogues from the LMS to the Enterprise Catalogue service.
+./manage.py lms migrate_enterprise_catalogs --api_user {{ ENTERPRISE_CATALOG_WORKER_USER_NAME }}

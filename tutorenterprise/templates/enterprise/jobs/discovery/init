@@ -1,0 +1,13 @@
+## Enterprise Catalogue service tasks:
+## Create Enterprise Catalogue user.
+## It's necessary to create this user to allow requests from other services using this user.
+export ENTERPRISE_CATALOG_WORKER_USER_NAME={{ ENTERPRISE_CATALOG_WORKER_USER_NAME }}
+export ENTERPRISE_CATALOG_WORKER_USER_EMAIL={{ ENTERPRISE_CATALOG_WORKER_USER_EMAIL }}
+./manage.py shell -c "
+import os
+from django.contrib.auth import get_user_model
+user, created = get_user_model().objects.get_or_create(username=os.environ['ENTERPRISE_CATALOG_WORKER_USER_NAME'], email=os.environ['ENTERPRISE_CATALOG_WORKER_USER_EMAIL'])
+user.set_unusable_password()
+user.is_staff = True
+user.is_superuser = True
+user.save()"

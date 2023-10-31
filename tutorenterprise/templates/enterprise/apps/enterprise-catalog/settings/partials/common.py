@@ -81,9 +81,9 @@ ENTERPRISE_LEARNER_PORTAL_BASE_URL = ""
 ECOMMERCE_BASE_URL = "{% if ENABLE_HTTPS %}https{% else %}http{% endif %}://{{ ECOMMERCE_HOST }}"
 LICENSE_MANAGER_BASE_URL = ""
 
-# Worker settings. We currently don't support async workers for the Enterprise Catalogue service.
+# Worker settings.
 CELERY_WORKER_HIJACK_ROOT_LOGGER = True
-CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_ALWAYS_EAGER = False
 CELERY_BROKER_TRANSPORT = "redis"
 CELERY_BROKER_HOSTNAME = "{{ REDIS_HOST }}:{{ REDIS_PORT }}"
 CELERY_BROKER_VHOST = "{{ OPENEDX_CELERY_REDIS_DB }}"

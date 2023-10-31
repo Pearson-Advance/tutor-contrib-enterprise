@@ -11,3 +11,18 @@ enterprise-catalog:
     - redis
     {% if RUN_MYSQL %}- mysql{% endif %}
     {% if RUN_LMS %}- lms{% endif %}
+
+enterprise-catalog-worker:
+  image: {{ ENTERPRISE_CATALOG_DOCKER_IMAGE }}
+  environment:
+    DJANGO_SETTINGS_MODULE: enterprise_catalog.settings.tutor.production
+  command: celery --app=enterprise_catalog.celery:app worker -l INFO
+  restart: unless-stopped
+  volumes:
+    - ../plugins/enterprise/apps/enterprise-catalog/settings:/openedx/enterprise-catalog/enterprise_catalog/settings/tutor:ro
+  depends_on:
+    - discovery
+    - ecommerce
+    - redis
+    {% if RUN_MYSQL %}- mysql{% endif %}
+    {% if RUN_LMS %}- lms{% endif %}

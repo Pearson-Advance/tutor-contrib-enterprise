@@ -1,0 +1,32 @@
+{%- if ENTERPRISE_CATALOG_ENABLE_HPA %}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: enterprise-catalog
+  labels:
+    app.kubernetes.io/name: enterprise-catalog
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: enterprise-catalog
+  minReplicas: {{ ENTERPRISE_CATALOG_MIN_REPLICAS }}
+  maxReplicas: {{ ENTERPRISE_CATALOG_MAX_REPLICAS }}
+  metrics:
+  {%- if ENTERPRISE_CATALOG_AVG_CPU > 0 %}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ ENTERPRISE_CATALOG_AVG_CPU }}
+  {%- endif %}
+  {%- if ENTERPRISE_CATALOG_AVG_MEMORY|length %}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: AverageValue
+        averageValue: {{ ENTERPRISE_CATALOG_AVG_MEMORY }}
+  {%- endif %}
+{%- endif %}

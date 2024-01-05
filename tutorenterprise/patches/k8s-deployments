@@ -28,6 +28,48 @@ spec:
               subPath: production.py
           securityContext:
             allowPrivilegeEscalation: false
+          resources:
+            limits:
+              cpu: "{{ ENTERPRISE_CATALOG_LIMIT_CPU }}"
+              memory: "{{ ENTERPRISE_CATALOG_LIMIT_MEMORY }}"
+            requests:
+              cpu: "{{ ENTERPRISE_CATALOG_REQUEST_CPU }}"
+              memory: "{{ ENTERPRISE_CATALOG_REQUEST_MEMORY }}"
+      volumes:
+        - name: settings
+          configMap:
+            name: enterprise-catalog-settings
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-catalog-worker
+  labels:
+    app.kubernetes.io/name: enterprise-catalog-worker
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: enterprise-catalog-worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: enterprise-catalog-worker
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: enterprise-catalog-worker
+          image: {{ ENTERPRISE_CATALOG_DOCKER_IMAGE }}
+          args: ["celery", "--app=enterprise_catalog.celery", "worker", "--loglevel=info"]
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - mountPath: /openedx/enterprise-catalog/enterprise_catalog/settings/tutor/production.py
+              name: settings
+              subPath: production.py
+          securityContext:
+            allowPrivilegeEscalation: false
       volumes:
         - name: settings
           configMap:

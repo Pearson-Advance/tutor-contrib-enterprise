@@ -34,6 +34,16 @@ config = {
         "CATALOG_DOCKER_IMAGE": "{{ DOCKER_REGISTRY }}paops/enterprise-catalog:{{ ENTERPRISE_VERSION }}",
         "DISCOVERY_USER": "discovery",
         "ECOMMERCE_OAUTH_USER": "{{ ECOMMERCE_OAUTH2_KEY }}",
+        ### HPA ###
+        "CATALOG_LIMIT_CPU": "1",
+        "CATALOG_LIMIT_MEMORY": "1Gi",
+        "CATALOG_REQUEST_CPU": "512m",
+        "CATALOG_REQUEST_MEMORY": "512Mi",
+        "CATALOG_ENABLE_HPA": False,
+        "CATALOG_MIN_REPLICAS": 1,
+        "CATALOG_MAX_REPLICAS": 4,
+        "CATALOG_AVG_CPU": 65,
+        "CATALOG_AVG_MEMORY": "500Mi",
     },
     "unique": {
         "OAUTH2_SECRET_KEY": "{{ 64|random_string }}",
@@ -161,6 +171,7 @@ hooks.Filters.ENV_TEMPLATE_TARGETS.add_items(
     [
         ("enterprise/build", "plugins"),
         ("enterprise/apps", "plugins"),
+        ("enterprise/k8s", "plugins"),
     ],
 )
 

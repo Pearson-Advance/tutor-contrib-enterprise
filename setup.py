@@ -98,7 +98,7 @@ setup(
         "Code": "https://github.com/Pearson-Advance/tutor-contrib-enterprise",
         "Issue tracker": "https://github.com/Pearson-Advance/tutor-contrib-enterprise/issues",
     },
-    license="",
+    license="Apache-2.0",
     author="eduNEXT <contact@edunext.co>",
     description="Open edX Enterprise plugin for Tutor",
     long_description=load_readme(),
@@ -114,7 +114,7 @@ setup(
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: ''",
+        "License :: OSI Approved :: 'Apache License Version 2.0'",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.8",

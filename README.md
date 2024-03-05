@@ -57,3 +57,12 @@ Sometimes course content metadata is not created after running: `sync-enterprise
 1. There is no Enterprise catalog query that meets the criteria of the courses you want to syncronize.
 2. Courses and course runs in Discovery don't have a course type assigned. In this case you need to manually assign the course type
 and re-index Elastic Search data in Discovery: https://edx-discovery.readthedocs.io/en/latest/quickstart.html#search-indexing
+
+## Contributing
+
+Contributions are very welcome, please see our [contributing](CONTRIBUTING.md)
+guide for more details.
+
+## License
+
+This work is licensed under the terms of the Apache 2 license.

@@ -9,8 +9,8 @@ enterprise-catalog:
     - discovery
     - ecommerce
     - redis
-    {% if RUN_MYSQL %}- mysql{% endif %}
-    {% if RUN_LMS %}- lms{% endif %}
+    - mysql
+    - lms
 
 enterprise-catalog-worker:
   image: {{ ENTERPRISE_CATALOG_DOCKER_IMAGE }}
@@ -25,5 +25,5 @@ enterprise-catalog-worker:
     - ecommerce
     - redis
     - enterprise-catalog
-    {% if RUN_MYSQL %}- mysql{% endif %}
-    {% if RUN_LMS %}- lms{% endif %}
+    - mysql
+    - lms

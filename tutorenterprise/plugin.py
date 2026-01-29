@@ -1,15 +1,30 @@
 from __future__ import annotations
 
-import os
-import os.path
 import typing as t
-from glob import glob
 
 import click
-import pkg_resources
+import importlib_resources
 from tutor import hooks
 
 from .__about__ import __version__
+
+PLUGIN_PACKAGE = "tutorenterprise"
+PACKAGE_FILES = importlib_resources.files(PLUGIN_PACKAGE)
+TEMPLATES_ROOT = PACKAGE_FILES.joinpath("templates")
+
+
+def read_template_text(template_path: tuple[str, ...]) -> str:
+    """
+    Read and return the UTF-8 text of a template shipped with this plugin.
+
+    Notes:
+        - This returns the file contents (a string), not a file handle.
+        - Using Traversable.read_text avoids any confusion about returning a reference
+          to an open file (and works even when resources are not plain filesystem
+          paths).
+    """
+    return TEMPLATES_ROOT.joinpath(*template_path).read_text()
+
 
 ########################################
 # CONFIGURATION
@@ -22,8 +37,8 @@ config = {
         "WORKER_USER_NAME": "enterprise_worker",
         "WORKER_USER_EMAIL": "enterprise_worker@example.com",
         "COURSE_CATALOG_API_URL": "{% if ENABLE_HTTPS %}https{% else %}http{% endif %}://{{ DISCOVERY_HOST }}/api/v1/",
-        "CATALOG_REPOSITORY": "https://github.com/Pearson-Advance/enterprise-catalog.git",
-        "CATALOG_GIT_VERSION": "open-release/pre-quince",
+        "CATALOG_REPOSITORY": "https://github.com/openedx/enterprise-catalog.git",
+        "CATALOG_GIT_VERSION": "release/ulmo",
         "CATALOG_WORKER_USER_NAME": "enterprise_catalog_worker",
         "CATALOG_WORKER_USER_EMAIL": "enterprise_catalog_worker@example.com",
         "CATALOG_HOST": "enterprise-catalog.{{ LMS_HOST }}",
@@ -85,17 +100,12 @@ MY_INIT_TASKS: list[tuple[str, tuple[str, ...]]] = [
     ("enterprise-catalog", ("enterprise", "jobs", "enterprise-catalog", "init")),
 ]
 
-
-# For each task added to MY_INIT_TASKS, we load the task template
-# and add it to the CLI_DO_INIT_TASKS filter, which tells Tutor to
-# run it as part of the `init` job.
+# For each task added to MY_INIT_TASKS, we load the task template and add it to
+# the CLI_DO_INIT_TASKS filter, which tells Tutor to run it as part of the `init` job.
 for service, template_path in MY_INIT_TASKS:
-    full_path: str = pkg_resources.resource_filename(
-        "tutorenterprise", os.path.join("templates", *template_path)
+    hooks.Filters.CLI_DO_INIT_TASKS.add_item(
+        (service, read_template_text(template_path)),
     )
-    with open(full_path, encoding="utf-8") as init_task_file:
-        init_task: str = init_task_file.read()
-    hooks.Filters.CLI_DO_INIT_TASKS.add_item((service, init_task))
 
 
 ########################################
@@ -106,18 +116,13 @@ for service, template_path in MY_INIT_TASKS:
 # Images to be built by `tutor images build`.
 # Each item is a quadruple in the form:
 #     ("<tutor_image_name>", ("path", "to", "build", "dir"), "<docker_image_tag>", "<build_args>")
-hooks.Filters.IMAGES_BUILD.add_items(
-    [
-        # To build `myimage` with `tutor images build myimage`,
-        # you would add a Dockerfile to templates/enterprise/build/myimage,
-        # and then write:
-        ### (
-        ###     "myimage",
-        ###     ("plugins", "enterprise", "build", "myimage"),
-        ###     "docker.io/myimage:{{ ENTERPRISE_VERSION }}",
-        ###     (),
-        ### ),
-    ]
+hooks.Filters.IMAGES_BUILD.add_item(
+    (
+        "enterprise-catalog",
+        ("plugins", "enterprise", "build", "enterprise-catalog"),
+        "{{ ENTERPRISE_CATALOG_DOCKER_IMAGE }}",
+        (),
+    ),
 )
 
 
@@ -131,7 +136,7 @@ hooks.Filters.IMAGES_PULL.add_items(
         ###     "myimage",
         ###     "docker.io/myimage:{{ ENTERPRISE_VERSION }}",
         ### ),
-    ]
+    ],
 )
 
 
@@ -145,7 +150,7 @@ hooks.Filters.IMAGES_PUSH.add_items(
         ###     "myimage",
         ###     "docker.io/myimage:{{ ENTERPRISE_VERSION }}",
         ### ),
-    ]
+    ],
 )
 
 
@@ -157,9 +162,7 @@ hooks.Filters.IMAGES_PUSH.add_items(
 
 hooks.Filters.ENV_TEMPLATE_ROOTS.add_items(
     # Root paths for template files, relative to the project root.
-    [
-        pkg_resources.resource_filename("tutorenterprise", "templates"),
-    ]
+    [str(TEMPLATES_ROOT)],
 )
 
 hooks.Filters.ENV_TEMPLATE_TARGETS.add_items(
@@ -184,14 +187,11 @@ hooks.Filters.ENV_TEMPLATE_TARGETS.add_items(
 
 # For each file in tutorenterprise/patches,
 # apply a patch based on the file's name and contents.
-for path in glob(
-    os.path.join(
-        pkg_resources.resource_filename("tutorenterprise", "patches"),
-        "*",
-    )
-):
-    with open(path, encoding="utf-8") as patch_file:
-        hooks.Filters.ENV_PATCHES.add_item((os.path.basename(path), patch_file.read()))
+for patch in sorted(PACKAGE_FILES.joinpath("patches").iterdir(), key=lambda p: p.name):
+    if patch.is_file():
+        hooks.Filters.ENV_PATCHES.add_item(
+            (patch.name, patch.read_text()),
+        )
 
 
 ########################################
@@ -226,47 +226,21 @@ def enterprise_migrate_catalog_lms_task() -> str:
     """
     Return the instructions of the template: tutorenterprise/templates/enterprise/jobs/lms/migrate_catalogs
     """
-    task_instructions = ""
     template_path = ("enterprise", "jobs", "lms", "migrate_catalogs")
-
-    with open(
-        return_template_full_path(template_path),
-        encoding="utf-8",
-    ) as lms_task_file:
-        task_instructions: str = lms_task_file.read()
-
-    return task_instructions
+    return read_template_text(template_path)
 
 
 def enterprise_catalog_update_content_metadata_task() -> str:
     """
     Return the instructions of the template: tutorenterprise/templates/enterprise/jobs/enterprise-catalog/update_content_metadata
     """
-    task_instructions = ""
     template_path = (
         "enterprise",
         "jobs",
         "enterprise-catalog",
         "update_content_metadata",
     )
-
-    with open(
-        return_template_full_path(template_path),
-        encoding="utf-8",
-    ) as catalog_task_file:
-        task_instructions: str = catalog_task_file.read()
-
-    return task_instructions
-
-
-def return_template_full_path(template_path: tuple) -> str:
-    """
-    Given the relative template path, it will return the full path of the template.
-    """
-    return pkg_resources.resource_filename(
-        "tutorenterprise",
-        os.path.join("templates", *template_path),
-    )
+    return read_template_text(template_path)
 
 
 # Then, add the command function to CLI_DO_COMMANDS:

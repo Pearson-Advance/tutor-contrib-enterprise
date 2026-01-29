@@ -23,7 +23,10 @@
 
 ## Fix site configuration as it needs an slash at the end of the URL.
 ## https://github.com/openedx/edx-enterprise/blob/3.57.1/enterprise/utils.py#L1558
-site-configuration set -d {{ LMS_HOST }} COURSE_CATALOG_API_URL {% if ENABLE_HTTPS %}https{% else %}http{% endif %}://{{ DISCOVERY_HOST }}/api/v1/
+./manage.py lms create_or_update_site_configuration \
+    --enabled \
+    --configuration '{"COURSE_CATALOG_API_URL": "{% if ENABLE_HTTPS %}https{% else %}http{% endif %}://{{ DISCOVERY_HOST }}/api/v1/"}' \
+    {{ LMS_HOST }}
 
 ## Enterprise Catalogue service tasks:
 ## Create Enterprise Catalogue user.

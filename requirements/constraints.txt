@@ -4,11 +4,9 @@
 # that will be applied if a package is needed.
 
 # Base requirements.
-tutor==15.3.7
+tutor==21.0.0
 
 # Dev requirements.
 black==23.3.0
-bumpversion==0.6.0
-isort==5.11.5
-pip-tools==6.13.0
-pylint==2.17.4
+pip-tools==7.5.2
+pylint==3.3.9

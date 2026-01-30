@@ -1,0 +1,49 @@
+[build-system]
+requires = [
+  "setuptools>=80",
+  "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tutor-contrib-enterprise"
+dynamic = ["version", "dependencies"]
+description = "Open edX Enterprise plugin for Tutor"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.11,<3.15"
+
+authors = [
+  { name = "eduNEXT", email = "contact@edunext.co" },
+]
+
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+
+[project.urls]
+Code = "https://github.com/Pearson-Advance/tutor-contrib-enterprise"
+"Issue tracker" = "https://github.com/Pearson-Advance/tutor-contrib-enterprise/issues"
+
+[project.entry-points."tutor.plugin.v1"]
+enterprise = "tutorenterprise.plugin"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+exclude = ["tests*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "tutorenterprise.__about__.__version__" }
+dependencies = { file = ["requirements/base.txt"] }
+
+[tool.setuptools.package-data]
+tutorenterprise = ["**/*"]

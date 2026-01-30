@@ -6,7 +6,7 @@ BLACK_OPTS = --exclude templates ${SRC_DIRS}
 PIP_COMPILE = pip-compile --rebuild --upgrade $(PIP_COMPILE_OPTS)
 
 # Warning: These checks are not necessarily run on every PR.
-test: test-lint test-format  # Run some static checks.
+test: requirements-dev test-lint test-format  # Run some static checks.
 
 test-format: ## Run code formatting tests
 	black --check --diff $(BLACK_OPTS)

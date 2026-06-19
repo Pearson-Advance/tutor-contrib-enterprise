@@ -218,6 +218,7 @@ def sync_enterprise_catalog_metadata() -> t.Iterable[tuple[str, str]]:
     """
     return [
         ("lms", enterprise_migrate_catalog_lms_task()),
+        ("discovery", enterprise_catalog_discovery_refresh_task()),
         ("enterprise-catalog", enterprise_catalog_update_content_metadata_task()),
     ]
 
@@ -239,6 +240,18 @@ def enterprise_catalog_update_content_metadata_task() -> str:
         "jobs",
         "enterprise-catalog",
         "update_content_metadata",
+    )
+    return read_template_text(template_path)
+
+def enterprise_catalog_discovery_refresh_task() -> str:
+    """
+    Return the instructions of the template: tutorenterprise/templates/enterprise/jobs/enterprise-catalog/discovery_refresh
+    """
+    template_path = (
+        "enterprise",
+        "jobs",
+        "discovery",
+        "refresh_course_metadata",
     )
     return read_template_text(template_path)
 

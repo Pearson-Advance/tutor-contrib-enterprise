@@ -1,0 +1,18 @@
+enterprise-catalog:
+  environment:
+    DJANGO_SETTINGS_MODULE: enterprise_catalog.settings.tutor.development
+  command: ./manage.py runserver 0.0.0.0:8160
+  ports:
+    - "127.0.0.1:8160:8160"
+  stdin_open: true
+  tty: true
+  volumes:
+    # editable requirements
+    - ../plugins/enterprise-catalog/build/enterprise-catalog/requirements:/openedx/requirements
+    {%- for mount in iter_mounts(MOUNTS, "enterprise-catalog") %}
+    - {{ mount }}
+    {%- endfor %}
+  networks:
+    default:
+      aliases:
+        - "{{ ENTERPRISE_CATALOG_HOST }}"

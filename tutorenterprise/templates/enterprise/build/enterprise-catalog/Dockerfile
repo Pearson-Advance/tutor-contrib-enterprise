@@ -16,7 +16,7 @@ ENV LC_ALL en_US.UTF-8
 
 # From then on, run as unprivileged "app" user
 # Note that this must always be different from root (APP_USER_ID=0)
-ARG APP_USER_ID=1000
+ARG APP_USER_ID=1001
 RUN if [ "$APP_USER_ID" = 0 ]; then echo "app user may not be root" && false; fi
 RUN useradd --no-log-init --home-dir /openedx --create-home --shell /bin/bash --uid ${APP_USER_ID} app
 USER ${APP_USER_ID}
